@@ -1,0 +1,3 @@
+bin/rufin*
+testdata/* 
+!testdata/mock_*
