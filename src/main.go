@@ -13,6 +13,7 @@ var secretPrefix = "@secretsmanager@"
 var secretsmanagerPattern = regexp.MustCompile(`.+` + secretPrefix + `(arn:aws:secretsmanager:[a-z]{2}-[a-z]+-[0-9]:[0-9]+:[a-z]+.+)$`)
 var cleartextFile string
 var cleartextFiles []string
+var keepCleartext bool
 
 func main() {
 
@@ -28,18 +29,22 @@ func main() {
 				HelmArgs = append(HelmArgs, arg)
 			}
 
-		}else {
+		} else if arg == "--keep" {
+			keepCleartext = true
+		} else {
 				HelmArgs = append(HelmArgs, arg)
 		}
 	}
 
 	fmt.Println(strings.Join(HelmArgs, " "))
 
-	for _, file := range cleartextFiles {
-	  fmt.Fprintln(os.Stderr, "Deleting cleartext file : ", file)
-	  e := os.Remove(file)
-	  if e != nil {
-		  log.Fatal(e)
-	  }
+	if !keepCleartext {
+		for _, file := range cleartextFiles {
+	  		fmt.Fprintln(os.Stderr, "Deleting cleartext file : ", file)
+	  		e := os.Remove(file)
+	  		if e != nil {
+		  		log.Fatal(e)
+	  		}
+		}
 	}
 }
