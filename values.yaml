@@ -1,0 +1,2 @@
+test:
+  token1secret: @secretsmanager@arn:aws:secretsmanager:eu-north-1:266996014649:secret:analytics/sso-l7Ms4d/APP_EPC_OAUTH2_PROXY_CLIENT_ID
