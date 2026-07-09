@@ -5,7 +5,6 @@ import (
 	"os"
 	"regexp"
 	"strings"
-	"log"
 )
 
 var HelmArgs []string
@@ -13,38 +12,31 @@ var secretPrefix = "@secretsmanager@"
 var secretsmanagerPattern = regexp.MustCompile(`.+` + secretPrefix + `(arn:aws:secretsmanager:[a-z]{2}-[a-z]+-[0-9]:[0-9]+:[a-z]+.+)$`)
 var cleartextFile string
 var cleartextFiles []string
-var keepCleartext bool
+var splicedArg []string
+var fileName string
 
 func main() {
 
 	for _, arg := range os.Args[1:] {
-		if strings.HasSuffix(arg, ".yaml") {
-			if containsSecrets(arg) {
+		if strings.HasSuffix(arg, ".yaml") || strings.HasSuffix(arg, ".yml") {
+			splicedArg = strings.SplitAfter(arg, "=")
+			fileName = splicedArg[len(splicedArg) - 1]
+			if containsSecrets(fileName) {
 
 				// helm command will be run with the new file containing secrets
-				cleartextFile = replaceSecrets(arg, getSecretsmanagerSecret)
+				cleartextFile = replaceSecrets(fileName, getSecretsmanagerSecret)
 				HelmArgs = append(HelmArgs, cleartextFile)
 				cleartextFiles = append(cleartextFiles, cleartextFile)
 			} else {
-				HelmArgs = append(HelmArgs, arg)
+				HelmArgs = append(HelmArgs, fileName)
 			}
 
 		} else if arg == "--keep" {
-			keepCleartext = true
+			fmt.Fprintln(os.Stderr, "Warning: The flag `--keep` will be deprecated in the next version.")
 		} else {
-				HelmArgs = append(HelmArgs, arg)
+			HelmArgs = append(HelmArgs, arg)
 		}
 	}
 
 	fmt.Println(strings.Join(HelmArgs, " "))
-
-	if !keepCleartext {
-		for _, file := range cleartextFiles {
-	  		fmt.Fprintln(os.Stderr, "Deleting cleartext file : ", file)
-	  		e := os.Remove(file)
-	  		if e != nil {
-		  		log.Fatal(e)
-	  		}
-		}
-	}
 }
