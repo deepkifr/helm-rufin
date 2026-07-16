@@ -22,14 +22,14 @@ func main() {
 		if strings.HasSuffix(arg, ".yaml") || strings.HasSuffix(arg, ".yml") {
 			splicedArg = strings.SplitAfter(arg, "=")
 			if len(splicedArg) > 1 {
-				valueName = fmt.Sprintf("%s", splicedArg[0])
+				valueName = splicedArg[0]
 			}
 			fileName = splicedArg[len(splicedArg) - 1]
 			if containsSecrets(fileName) {
 
 				// helm command will be run with the new file containing secrets
 				cleartextFile = replaceSecrets(fileName, getSecretsmanagerSecret)
-				HelmArgs = append(HelmArgs, fmt.Sprintf("%s%s", valueName, cleartextFile))
+				HelmArgs = append(HelmArgs, valueName + cleartextFile)
 				cleartextFiles = append(cleartextFiles, cleartextFile)
 			} else {
 				HelmArgs = append(HelmArgs, arg)
