@@ -13,6 +13,7 @@ var secretsmanagerPattern = regexp.MustCompile(`.+` + secretPrefix + `(arn:aws:s
 var cleartextFile string
 var cleartextFiles []string
 var splicedArg []string
+var valueName = ""
 var fileName string
 
 func main() {
@@ -20,12 +21,15 @@ func main() {
 	for _, arg := range os.Args[1:] {
 		if strings.HasSuffix(arg, ".yaml") || strings.HasSuffix(arg, ".yml") {
 			splicedArg = strings.SplitAfter(arg, "=")
+			if len(splicedArg) > 1 {
+				valueName = fmt.Sprintf("%s=", splicedArg[0])
+			}
 			fileName = splicedArg[len(splicedArg) - 1]
 			if containsSecrets(fileName) {
 
 				// helm command will be run with the new file containing secrets
 				cleartextFile = replaceSecrets(fileName, getSecretsmanagerSecret)
-				HelmArgs = append(HelmArgs, cleartextFile)
+				HelmArgs = append(HelmArgs, fmt.Sprintf("%s%s", valueName, fileName))
 				cleartextFiles = append(cleartextFiles, cleartextFile)
 			} else {
 				HelmArgs = append(HelmArgs, arg)
