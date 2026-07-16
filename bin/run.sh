@@ -5,4 +5,5 @@ HELM_ARGS_WITH_SECRETS="$($PLUGIN_BIN $@)"
 
 helm ${HELM_ARGS_WITH_SECRETS}
 
-rm -f with-secrets-*.(yaml|yml)
+rm -f with-secrets-*.yaml
+rm -f with-secrets-*.yml
