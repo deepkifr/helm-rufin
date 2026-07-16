@@ -28,7 +28,7 @@ func main() {
 				HelmArgs = append(HelmArgs, cleartextFile)
 				cleartextFiles = append(cleartextFiles, cleartextFile)
 			} else {
-				HelmArgs = append(HelmArgs, fileName)
+				HelmArgs = append(HelmArgs, arg)
 			}
 
 		} else if arg == "--keep" {
